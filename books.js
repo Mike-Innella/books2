@@ -1,34 +1,52 @@
 function renderBooks() {
   const booksWrapper = document.querySelector(".books");
 
+  if (!booksWrapper) {
+    console.error("No element found with the class 'books'");
+    return;
+  }
+
   const books = getBooks();
 
   const booksHtml = books
     .map((book) => {
-      return `<div class="book">
-  <figure class="book__img--wrapper">
-    <img class="book__img" src="${book.url}" alt="">
-  <div class="book__title">
-  ${book.title}
-    </div>
-  <div class="book__ratings">
-    <i class="fas fa-star"></i>
-    <i class="fas fa-star"></i>
-    <i class="fas fa-star"></i>
-    <i class="fas fa-star"></i>
-    <i class="fas fa-star-half-alt"></i>
-  </div>
-  <div class="book__price">
-    <span class="book__price--normal">$${book.originalPrice.toFixed(2)}
-    </span>$${book.salePrice.toFixed(2)}
-</div>`;
+      const priceHtml =
+        book.salePrice !== null
+          ? `
+          <span class="book__price--normal">$${book.originalPrice.toFixed(
+            2
+          )}</span>
+          <span class="book__price--sale">$${book.salePrice.toFixed(2)}</span>
+        `
+          : `<span class="book__price--normal">$${book.originalPrice.toFixed(
+              2
+            )}</span>`;
+
+      return `
+        <div class="book">
+          <figure class="book__img--wrapper">
+            <img class="book__img" src="${book.url}" alt="${book.title}">
+          </figure>
+          <div class="book__title">${book.title}</div>
+          <div class="book__ratings">
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star"></i>
+            <i class="fas fa-star-half-alt"></i>
+            ${book.rating}
+          </div>
+          <div class="book__price">${priceHtml}</div>
+        </div>`;
     })
     .join("");
 
-  console.log(booksHtml);
-
   booksWrapper.innerHTML = booksHtml;
 }
+
+document.addEventListener("DOMContentLoaded", () => {
+  renderBooks();
+});
 
 setTimeout(() => {
   renderBooks();
