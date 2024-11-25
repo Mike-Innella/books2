@@ -60,7 +60,8 @@
                 All <span class="purple">Books</span>
               </h2>
               <select id="filter">
-                <option value="" disabled selected>Sort</option>
+                <option value="" disabled selected>Sort by...</option>
+                <option value="Default">Default</option>
                 <option value="LOW_TO_HIGH">Price, Low to High.</option>
                 <option value="HIGH_TO_LOW">Price, High to Low</option>
                 <option value="RATING">Rating</option>
@@ -68,6 +69,9 @@
             </div>
             <div class="books"></div>
           </div>
+        </div>
+        <div class="books__loading">
+          <i class="fas fa-spinner"></i> Loading Books...
         </div>
       </section>
     </main>

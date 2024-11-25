@@ -1,55 +1,94 @@
-function renderBooks() {
+function renderBooks(sortBy = "Default") {
   const booksWrapper = document.querySelector(".books");
+  const loadingIndicator = document.querySelector(".books__loading");
 
-  if (!booksWrapper) {
-    console.error("No element found with the class 'books'");
-    return;
+  if (!booksWrapper) return;
+
+  let books = getBooks();
+
+  if (loadingIndicator) {
+    loadingIndicator.style.display = "block";
+    loadingIndicator.style.opacity = "1";
   }
 
-  const books = getBooks();
+  booksWrapper.style.opacity = "0";
 
-  const booksHtml = books
-    .map((book) => {
-      const priceHtml =
-        book.salePrice !== null
-          ? `
-          <span class="book__price--normal">$${book.originalPrice.toFixed(
-            2
-          )}</span>
-          <span class="book__price--sale">$${book.salePrice.toFixed(2)}</span>
-        `
+  setTimeout(() => {
+    if (sortBy === "LOW_TO_HIGH") {
+      books.sort((a, b) => {
+        const priceA = a.salePrice ?? a.originalPrice;
+        const priceB = b.salePrice ?? b.originalPrice;
+        return priceA - priceB;
+      });
+    } else if (sortBy === "HIGH_TO_LOW") {
+      books.sort((a, b) => {
+        const priceA = a.salePrice ?? a.originalPrice;
+        const priceB = b.salePrice ?? b.originalPrice;
+        return priceB - priceA;
+      });
+    } else if (sortBy === "RATING") {
+      books.sort((a, b) => b.rating - a.rating);
+    }
+
+    const maxStars = 5;
+
+    const booksHtml = books
+      .map((book) => {
+        const fullStars = Math.floor(book.rating);
+        const halfStar = book.rating % 1 !== 0;
+        const emptyStars = maxStars - fullStars - (halfStar ? 1 : 0);
+
+        const starsHtml = ` 
+          ${'<i class="fas fa-star"></i>'.repeat(fullStars)}
+          ${halfStar ? '<i class="fas fa-star-half-alt"></i>' : ""}
+          ${'<i class="far fa-star"></i>'.repeat(emptyStars)}
+        `;
+
+        const priceHtml = book.salePrice
+          ? ` 
+            <span class="book__price--normal book__price--strikethrough">$${book.originalPrice.toFixed(
+              2
+            )}</span>
+            <span class="book__price--sale">$${book.salePrice.toFixed(2)}</span>
+          `
           : `<span class="book__price--normal">$${book.originalPrice.toFixed(
               2
             )}</span>`;
 
-      return `
-        <div class="book">
-          <figure class="book__img--wrapper">
-            <img class="book__img" src="${book.url}" alt="${book.title}">
-          </figure>
-          <div class="book__title">${book.title}</div>
-          <div class="book__ratings">
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star"></i>
-            <i class="fas fa-star-half-alt"></i>
-            ${book.rating}
-          </div>
-          <div class="book__price">${priceHtml}</div>
-        </div>`;
-    })
-    .join("");
+        return ` 
+          <div class="book">
+            <figure class="book__img--wrapper">
+              <img class="book__img" src="${book.url}" alt="${book.title}">
+            </figure>
+            <div class="book__title">${book.title}</div>
+            <div class="book__ratings">${starsHtml}</div>
+            <div class="book__price">${priceHtml}</div>
+          </div>`;
+      })
+      .join("");
 
-  booksWrapper.innerHTML = booksHtml;
+    booksWrapper.innerHTML = booksHtml;
+
+    booksWrapper.style.opacity = "1";
+
+    if (loadingIndicator) {
+      loadingIndicator.style.display = "none";
+      loadingIndicator.style.opacity = "0";
+    }
+  }, 1000);
 }
 
 document.addEventListener("DOMContentLoaded", () => {
   renderBooks();
-});
 
-setTimeout(() => {
-  renderBooks();
+  const filterSelect = document.querySelector("#filter");
+
+  if (filterSelect) {
+    filterSelect.addEventListener("change", (event) => {
+      const sortBy = event.target.value;
+      renderBooks(sortBy);
+    });
+  }
 });
 
 // FAKE DATA
